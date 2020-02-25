@@ -1,7 +1,9 @@
-package EtwConsumer
-// #cgo LDFLAGS: C:/Users/eyekutiel/Go/src/github.com/Eladyek/EtwConsumer/libEtwConsumer.a
+package main
+// #cgo LDFLAGS: ./libEtwConsumer.a
 // #include "EtwConsumer.h"
 import "C"
+// import "time"
+// import "fmt"
 
 type GoTraceSession struct {
 	traceSession C.myTraceSession
@@ -21,4 +23,16 @@ func (tr GoTraceSession) Consume() {
 
 func (tr GoTraceSession) Close() {
 	C.TraceSessionClose(tr.traceSession)
+}
+
+func main() {
+	traceSession := New()
+	//traceSession.Close()
+	traceSession.Consume()
+	// time.Sleep(3 * time.Second)
+	// fmt.Printf("***********************************************************\n")
+	// fmt.Printf("*********************************   Going   To   Free   **************************\n")
+	// fmt.Printf("***********************************************************\n")
+	traceSession.Close()
+	traceSession.Free()
 }

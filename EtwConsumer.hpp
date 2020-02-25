@@ -14,6 +14,7 @@
 
 struct ITraceConsumer;
 
+int C(int n);
 class TraceSession
 {
 

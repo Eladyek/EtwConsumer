@@ -18,9 +18,11 @@ GUID StringToGuid(const std::string& str)
 
 
 struct ITraceConsumer {
-    virtual void OnEventRecord(PEVENT_RECORD eventPointer) {
-		printf("callback called \n");
-	};
+    virtual void OnEventRecord(PEVENT_RECORD eventPointer, int (*c)(int n)) {
+		int m = c(2);
+		std::cout << "callback called "<< m<< "\n";
+		//SetEvent(event);
+    };
 };
 
 TraceSession::TraceSession() : _szSessionName(_tcsdup(LPCTSTR("AD Core")))
@@ -61,15 +63,24 @@ bool TraceSession::EnableProvider(const GUID& providerId, UCHAR level, ULONGLONG
     return (_status == ERROR_SUCCESS);
 }
 
+int(* callbackFunction)(int t);
+
 namespace
 {
 
     VOID WINAPI EventRecordCallback(_In_ PEVENT_RECORD pEventRecord)
     {
-        reinterpret_cast<ITraceConsumer*>(pEventRecord->UserContext)->OnEventRecord(pEventRecord);
+        reinterpret_cast<ITraceConsumer*>(pEventRecord->UserContext)->OnEventRecord(pEventRecord, callbackFunction);
     }
 
 }
+
+
+
+int C(int n) {
+		std::cout << "func passed:-)\n";
+		return n+1;
+	}
 
 bool TraceSession::OpenTrace(ITraceConsumer* pConsumer)
 {
@@ -138,7 +149,7 @@ void TraceSession::Close()
 
 int TraceSession::Consume()
 {
-   
+    callbackFunction = &C;
     ITraceConsumer consumer = ITraceConsumer();
     std::cout << "trace consumer was created!\n";
 
@@ -167,7 +178,9 @@ int TraceSession::Consume()
 		}
 	}
 
-	EnableProvider(StringToGuid("{DAF0B914-9C1C-450A-81B2-FEA7244F6FFA}"), TRACE_LEVEL_VERBOSE); // office word
+    // EnableProvider(StringToGuid("{DAF0B914-9C1C-450A-81B2-FEA7244F6FFA}"), TRACE_LEVEL_VERBOSE); // office word
+	EnableProvider(StringToGuid("{BB00E856-A12F-4AB7-B2C8-4E80CAEA5B07}"), TRACE_LEVEL_VERBOSE); // office word2
+	// EnableProvider(StringToGuid("{A1B69D49-2195-4F59-9D33-BDF30C0FE473}"), TRACE_LEVEL_VERBOSE); // office word3
 	//EnableProvider(StringToGuid("{1C83B2FC-C04F-11D1-8AFC-00C04FC21914}"), TRACE_LEVEL_VERBOSE); // Active directory service : core
 	std::cout << "provider session was enabled!\n";
 
