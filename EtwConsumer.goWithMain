@@ -3,7 +3,7 @@ package main
 // #include "EtwConsumer.h"
 import "C"
 // import "time"
-// import "fmt"
+import "fmt"
 
 type GoTraceSession struct {
 	traceSession C.myTraceSession
@@ -18,11 +18,16 @@ func (tr GoTraceSession) Free() {
 	C.TraceSessionFree(tr.traceSession)
 }
 func (tr GoTraceSession) Consume() {
-	C.TraceSessionConsume(tr.traceSession)
+	C.TraceSessionConsume(tr.traceSession/*, CallbackGo*/)
 }
 
 func (tr GoTraceSession) Close() {
 	C.TraceSessionClose(tr.traceSession)
+}
+
+func CallbackGo(n int) int {
+	fmt.Printf("********************** A Big Success *********************\n")
+	return n+3;
 }
 
 func main() {
@@ -36,3 +41,5 @@ func main() {
 	traceSession.Close()
 	traceSession.Free()
 }
+
+

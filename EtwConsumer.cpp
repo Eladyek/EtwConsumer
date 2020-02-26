@@ -18,31 +18,33 @@ GUID StringToGuid(const std::string& str)
 
 
 struct ITraceConsumer {
-    virtual void OnEventRecord(PEVENT_RECORD eventPointer, int (*c)(int n)) {
-		int m = c(2);
-		std::cout << "callback called "<< m<< "\n";
+    virtual void OnEventRecord(PEVENT_RECORD eventPointer, void (*c)(char* n)) {
+		//int m = c(2);
+		c("string from c++ printed in go :)");
+		//std::cout << "callback called "<< "\n";
 		//SetEvent(event);
     };
 };
 
 TraceSession::TraceSession() : _szSessionName(_tcsdup(LPCTSTR("AD Core")))
 {
-	std::cout<<"new session****************** \n";
+	//std::cout<<"new session****************** \n";
 }
 
 TraceSession::~TraceSession(void)
 {
+	Close();
     delete[]_szSessionName;
     delete _pSessionProperties;
 }
 
 bool TraceSession::Start()
 {
-	 std::cout << "starting!\n";
+	 //std::cout << "starting!\n";
     if (!_pSessionProperties) {
 		  delete _pSessionProperties;
 	}
-		std::cout<<"init session prop \n";
+		//std::cout<<"init session prop \n";
         const size_t buffSize = sizeof(EVENT_TRACE_PROPERTIES) + (_tcslen(_szSessionName) + 1) * sizeof(TCHAR);
         _pSessionProperties = reinterpret_cast<EVENT_TRACE_PROPERTIES*>(malloc(buffSize));
         ZeroMemory(_pSessionProperties, buffSize);
@@ -51,19 +53,28 @@ bool TraceSession::Start()
         _pSessionProperties->LogFileMode = EVENT_TRACE_REAL_TIME_MODE;
         _pSessionProperties->LoggerNameOffset = sizeof(EVENT_TRACE_PROPERTIES);
     //}
-	std::cout<<"StartingTrace\n";
+	//std::cout<<"StartingTrace\n";
     _status = StartTrace(&hSession, _szSessionName, _pSessionProperties);
-    return (_status == ERROR_SUCCESS);
+	bool isSuccess = _status == ERROR_SUCCESS;
+	//std::cout << "Status success is "<< isSuccess<<"\n";
+    return isSuccess;
 }
 
-bool TraceSession::EnableProvider(const GUID& providerId, UCHAR level, ULONGLONG anyKeyword, ULONGLONG allKeyword)
+bool TraceSession::EnableProvider(const GUID& providerId, UCHAR level, ULONGLONG anyKeyword)
 {
-	std::cout << "Enabling Provider\n";
+	// //std::cout << "Enabling Provider\n";
+	// //std::cout <<"EVENT_CONTROL_CODE_ENABLE_PROVIDER: "<< EVENT_CONTROL_CODE_ENABLE_PROVIDER<<"\n";
+	// //std::cout << "anykeyword: "<<anyKeyword<<"\n";
+	// //std::cout << "level: "<<(int)level<<"\n";
+	// //std::cout << "guid "<<providerId.Data1<<"-"<<providerId.Data2<<"-"<<providerId.Data3<<"-"<<providerId.Data4<<"\n";
+	// //std::cout << "hesession: "<<hSession<<"\n";
     _status = EnableTrace(EVENT_CONTROL_CODE_ENABLE_PROVIDER, anyKeyword, level, &providerId, hSession);
-    return (_status == ERROR_SUCCESS);
+	bool isSuccess = _status == ERROR_SUCCESS;
+	// //std::cout<< "is success is : "<<isSuccess<<"\n";
+    return isSuccess;
 }
 
-int(* callbackFunction)(int t);
+void(* callbackFunction)(char* n);
 
 namespace
 {
@@ -78,7 +89,7 @@ namespace
 
 
 int C(int n) {
-		std::cout << "func passed:-)\n";
+		//std::cout << "func passed:-)\n";
 		return n+1;
 	}
 
@@ -140,35 +151,35 @@ LONGLONG TraceSession::PerfFreq() const
 void TraceSession::Close() 
 {
 	CloseTrace();
-	std::cout<<"Closed Trace\n";
+	//std::cout<<"Closed Trace\n";
 	DisableProvider(StringToGuid("{DAF0B914-9C1C-450A-81B2-FEA7244F6FFA}"));
-	std::cout<<"Disabled Provider\n";
+	//std::cout<<"Disabled Provider\n";
 	Stop();
-	std::cout<<"stopped\n";
+	//std::cout<<"stopped\n";
 }
 
-int TraceSession::Consume()
+int TraceSession::Consume(/*int (*c)(int n)*/)
 {
-    callbackFunction = &C;
+    //callbackFunction = C;
     ITraceConsumer consumer = ITraceConsumer();
-    std::cout << "trace consumer was created!\n";
+    //std::cout << "trace consumer was created!\n";
 
 	if (Start()) {
-		std::cout << "trace session was started!  \n";
+		//std::cout << "trace session was started!  \n";
 	}
 	else {
-		std::cout << "trace session didnt start  \n";
+		//std::cout << "trace session didnt start  \n";
 		ULONG status = Status();
-		std::cout << "trace session status is: " << status << "\n";
+		//std::cout << "trace session status is: " << status << "\n";
 
 		if (status == ERROR_ALREADY_EXISTS) {
 			if (Stop()) {
-				std::cout << "trace session was stopped!  \n";
+				//std::cout << "trace session was stopped!  \n";
 				if (Start()) {
-					std::cout << "trace session was started!  \n";
+					//std::cout << "trace session was started!  \n";
 				}
 				else {
-					printf("error trace session didnt start");
+					//std::cout << "error trace session didnt start";
 					return 1;
 				}
 			}
@@ -178,17 +189,23 @@ int TraceSession::Consume()
 		}
 	}
 
-    // EnableProvider(StringToGuid("{DAF0B914-9C1C-450A-81B2-FEA7244F6FFA}"), TRACE_LEVEL_VERBOSE); // office word
-	EnableProvider(StringToGuid("{BB00E856-A12F-4AB7-B2C8-4E80CAEA5B07}"), TRACE_LEVEL_VERBOSE); // office word2
-	// EnableProvider(StringToGuid("{A1B69D49-2195-4F59-9D33-BDF30C0FE473}"), TRACE_LEVEL_VERBOSE); // office word3
-	//EnableProvider(StringToGuid("{1C83B2FC-C04F-11D1-8AFC-00C04FC21914}"), TRACE_LEVEL_VERBOSE); // Active directory service : core
-	std::cout << "provider session was enabled!\n";
+    // EnableProvider(StringToGuid("{DAF0B914-9C1C-450A-81B2-FEA7244F6FFA}"), TRACE_LEVEL_VERBOSE,0); // office word
+	EnableProvider(StringToGuid("{BB00E856-A12F-4AB7-B2C8-4E80CAEA5B07}"), TRACE_LEVEL_VERBOSE, 0); // office word2
+	// EnableProvider(StringToGuid("{A1B69D49-2195-4F59-9D33-BDF30C0FE473}"), TRACE_LEVEL_VERBOSE,0); // office word3
+	//EnableProvider(StringToGuid("{1C83B2FC-C04F-11D1-8AFC-00C04FC21914}"), TRACE_LEVEL_VERBOSE,0); // Active directory service : core
+	//std::cout << "provider session was enabled!\n";
 
 	OpenTraceA(&consumer);
-	std::cout << "trace session was opened!\n";
+	//std::cout << "trace session was opened!\n";
 	bool b = Process();
-	std::cout << "trace session was proccessed!\n";
+	//std::cout << "trace session was proccessed!\n";
 	return 0;
+}
+
+int Begin(void (*c)(char* n)){
+	TraceSession traceSession = TraceSession();
+	callbackFunction = c;
+	return traceSession.Consume();
 }
 
 // int main()

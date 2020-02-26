@@ -24,14 +24,14 @@ public:
 
 public:
     bool Start();
-    bool EnableProvider(const GUID& providerId, UCHAR level, ULONGLONG anyKeyword = 0, ULONGLONG allKeyword = 0);
+    bool EnableProvider(const GUID& providerId, UCHAR level, ULONGLONG anyKeyword = 0);
     bool OpenTrace(ITraceConsumer* pConsumer);
     bool Process();
     bool CloseTrace();
     bool DisableProvider(const GUID& providerId);
     bool Stop();
     void Close();
-	int Consume();
+	int Consume(/*int (*c)(int n)*/);
     ULONG Status() const;
     LONGLONG PerfFreq() const;
 
@@ -44,5 +44,7 @@ private:
     TRACEHANDLE _hTrace;
 
 };
+
+int Begin(void (*c)(char* n));
 
 #endif

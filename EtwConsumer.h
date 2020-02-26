@@ -5,11 +5,7 @@
 extern "C" {
 #endif
 
-	typedef void* myTraceSession;
-	myTraceSession TraceSessionInit(void);
-	void TraceSessionFree(myTraceSession);
-	void TraceSessionConsume(myTraceSession);
-	void TraceSessionClose(myTraceSession);
+void BeginC();
 
 #ifdef __cplusplus
 }
