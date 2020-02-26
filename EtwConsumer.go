@@ -1,5 +1,5 @@
-package EtwConsumer
-// package main
+// package EtwConsumer
+package main
 import "fmt"
 
 /*
@@ -18,7 +18,7 @@ func Example() {
 	C.BeginC()
 }
 
-// func main() {
-	// Example()
-// }
+func main() {
+	Example()
+}
 

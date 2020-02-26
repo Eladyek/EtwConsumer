@@ -20,7 +20,8 @@ GUID StringToGuid(const std::string& str)
 struct ITraceConsumer {
     virtual void OnEventRecord(PEVENT_RECORD eventPointer, void (*c)(char* n)) {
 		//int m = c(2);
-		c("string from c++ printed in go :)");
+		char str[] = "string from c++ printed in go :)";
+		c(str);
 		//std::cout << "callback called "<< "\n";
 		//SetEvent(event);
     };
@@ -193,7 +194,7 @@ int TraceSession::Consume(/*int (*c)(int n)*/)
 	EnableProvider(StringToGuid("{BB00E856-A12F-4AB7-B2C8-4E80CAEA5B07}"), TRACE_LEVEL_VERBOSE, 0); // office word2
 	// EnableProvider(StringToGuid("{A1B69D49-2195-4F59-9D33-BDF30C0FE473}"), TRACE_LEVEL_VERBOSE,0); // office word3
 	//EnableProvider(StringToGuid("{1C83B2FC-C04F-11D1-8AFC-00C04FC21914}"), TRACE_LEVEL_VERBOSE,0); // Active directory service : core
-	//std::cout << "provider session was enabled!\n";
+	// std::cout << "provider session was enabled!\n";
 
 	OpenTraceA(&consumer);
 	//std::cout << "trace session was opened!\n";
