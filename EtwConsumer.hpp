@@ -7,7 +7,7 @@
 #include <guiddef.h>
 #include <windows.h>
 #include <evntrace.h>
-#include <iostream>
+#include <stdio.h>
 #include <tchar.h>
 #include <evntprov.h>
 #include <evntcons.h>
@@ -31,7 +31,7 @@ public:
     bool DisableProvider(const GUID& providerId);
     bool Stop();
     void Close();
-	int Consume(/*int (*c)(int n)*/);
+	int Consume();
     ULONG Status() const;
     LONGLONG PerfFreq() const;
 
