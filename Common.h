@@ -11,6 +11,5 @@
 #include <evntrace.h>
 
 GUID StringToGuid(const char* str);
-//void(* callbackFunction)(char* n);
 
 #endif

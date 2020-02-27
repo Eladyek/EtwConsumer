@@ -6,11 +6,11 @@ int Begin(void (*callback)(char* n)) {
 	return traceSession.Consume();
 }
 
-void DefaultCallback(char* n) {
-		printf(n);
-}
+// void DefaultCallback(char* n) {
+		// printf(n);
+// }
 
-int main()
-{
-	return Begin(DefaultCallback);
-}
+// int main()
+// {
+	// return Begin(DefaultCallback);
+// }
